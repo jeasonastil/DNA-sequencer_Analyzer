@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DNA Sequence Analyzer</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f8fb;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        h1 {
+            color: #176b87;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #176b87;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0f4c5c;
+        }
+
+        #results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #eef7f9;
+            border-radius: 10px;
+        }
+
+        .result {
+            margin: 10px 0;
+            font-size: 17px;
+        }
+
+        .sequence {
+            word-break: break-all;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🧬 DNA Sequence Analyzer</h1>
+
+    <p>Enter a DNA sequence to analyze its basic properties.</p>
+<h3>Upload FASTA File</h3>
+
+<input type="file" id="fastaFile" accept=".fasta,.fa,.txt">
+
+<br><br>
+
+<button onclick="loadFASTA()">Load FASTA</button>
+    <textarea id="dnaSequence"
+        placeholder="Example: ATGCGTACCGATCG">
+ATGCGTACCGATCG</textarea>
+
+    <br>
+
+    <button onclick="analyzeDNA()">Analyze DNA</button>
+
+    <div id="results">
+
+        <h2>Analysis Results</h2>
+
+        <div class="result">
+            <b>Sequence Length:</b>
+            <span id="length"></span> bp
+        </div>
+
+        <div class="result">
+            <b>A Count:</b>
+            <span id="aCount"></span>
+        </div>
+
+        <div class="result">
+            <b>T Count:</b>
+            <span id="tCount"></span>
+        </div>
+
+        <div class="result">
+            <b>G Count:</b>
+            <span id="gCount"></span>
+        </div>
+
+        <div class="result">
+            <b>C Count:</b>
+            <span id="cCount"></span>
+        </div>
+
+        <div class="result">
+            <b>GC Content:</b>
+            <span id="gcContent"></span> %
+        </div>
+
+        <div class="result">
+            <b>AT Content:</b>
+            <span id="atContent"></span> %
+        </div>
+
+        <h3>Complementary Sequence</h3>
+        <div class="sequence" id="complement"></div>
+
+        <h3>Reverse Sequence</h3>
+        <div class="sequence" id="reverse"></div>
+
+        <h3>Reverse Complement</h3>
+        <div class="sequence" id="reverseComplement"></div>
+
+    </div>
+
+</div>
+function loadFASTA() {
+    const file = document.getElementById("fastaFile").files[0];
+
+    if (!file) {
+        alert("Please select a FASTA file!");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        let text = event.target.result;
+
+        let sequence = text
+            .split("\n")
+            .filter(line => !line.startsWith(">"))
+            .join("")
+            .replace(/\s/g, "")
+            .toUpperCase();
+
+        document.getElementById("dnaSequence").value = sequence;
+
+        alert("FASTA sequence loaded successfully!");
+    };
+
+    reader.readAsText(file);
+}
+<script>
+
+function analyzeDNA() {
+
+    let sequence = document.getElementById("dnaSequence").value;
+
+    // Remove spaces, numbers and line breaks
+    sequence = sequence.toUpperCase().replace(/[^ATGC]/g, "");
+
+    // Check sequence
+    if (sequence.length === 0) {
+        alert("Please enter a valid DNA sequence!");
+        return;
+    }
+
+    // Count bases
+    let A = (sequence.match(/A/g) || []).length;
+    let T = (sequence.match(/T/g) || []).length;
+    let G = (sequence.match(/G/g) || []).length;
+    let C = (sequence.match(/C/g) || []).length;
+
+    // Length
+    let length = sequence.length;
+
+    // GC and AT content
+    let GC = ((G + C) / length * 100).toFixed(2);
+    let AT = ((A + T) / length * 100).toFixed(2);
+
+    // Complement
+    let complement = "";
+
+    for (let base of sequence) {
+
+        if (base === "A") {
+            complement += "T";
+        }
+
+        else if (base === "T") {
+            complement += "A";
+        }
+
+        else if (base === "G") {
+            complement += "C";
+        }
+
+        else if (base === "C") {
+            complement += "G";
+        }
+    }
+
+    // Reverse
+    let reverse = sequence.split("").reverse().join("");
+
+    // Reverse complement
+    let reverseComplement =
+        complement.split("").reverse().join("");
+
+
+    // Display results
+    document.getElementById("length").textContent = length;
+
+    document.getElementById("aCount").textContent = A;
+
+    document.getElementById("tCount").textContent = T;
+
+    document.getElementById("gCount").textContent = G;
+
+    document.getElementById("cCount").textContent = C;
+
+    document.getElementById("gcContent").textContent = GC;
+
+    document.getElementById("atContent").textContent = AT;
+
+    document.getElementById("complement").textContent =
+        complement;
+
+    document.getElementById("reverse").textContent =
+        reverse;
+
+    document.getElementById("reverseComplement").textContent =
+        reverseComplement;
+}
+function loadFASTA() {
+
+    const file = document.getElementById("fastaFile").files[0];
+
+    if (!file) {
+        alert("Please select a FASTA file!");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+
+        let text = event.target.result;
+
+        let sequence = text
+            .split("\n")
+            .filter(line => !line.startsWith(">"))
+            .join("")
+            .replace(/\s/g, "")
+            .toUpperCase();
+
+        document.getElementById("dnaSequence").value = sequence;
+
+        alert("FASTA sequence loaded successfully!");
+    };
+
+    reader.readAsText(file);
+}
+</script>
+
+</body>
+</html>
